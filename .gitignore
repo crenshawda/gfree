@@ -5,3 +5,4 @@ bin/*
 envme.sh
 *.swp
 *.pyc
+.Python
