@@ -1,0 +1,20 @@
+This program should assist find gluten free restaurants near you and bus routes to get you there.
+
+Python Dependencies:
+	unirest
+	rauth
+
+Note: This uses the Mashape and Yelp APIs to coordinate restaurant and transit information, so you will need to sign up and get keys for both of them. You will need to export the following keys as environment variables:
+	TRANSLOC_MASHAPE_KEY
+	YELP_CONSUMER_KEY
+	YELP_CONSUMER_SECRET
+	YELP_TOKEN
+	YELP_TOKEN_SECRET
+
+Usage: You can use the find_guten_free_near_me(my_lat, my_long, search_radius=9000) function to find bus routes to gluten free establishment in your search radius.
+
+	Here's a test example using the find_me() function (hardcoded to Slater Rd in Durham):
+
+	>>> import gfree
+	>>> gfree.find_guten_free_near_me(*gfree.find_me())
+	{(u"P F Chang's China Bistro", u'6801 Fayetteville Rd, Renaissance Center at Southpoint, Durham, NC 27713,'): [u'4003038', u'4000088']}

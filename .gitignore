@@ -6,3 +6,4 @@ envme.sh
 *.swp
 *.pyc
 .Python
+MANIFEST
