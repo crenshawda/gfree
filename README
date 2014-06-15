@@ -1,4 +1,4 @@
-This program should assist find gluten free restaurants near you and bus routes to get you there.
+This program should help find gluten free restaurants near you and bus routes to get you there.
 
 Python Dependencies:
 	unirest
