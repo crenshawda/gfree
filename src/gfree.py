@@ -3,9 +3,10 @@ import rauth
 import os
 import sys
 
-# TODO: integrate more sources than just yelp
+# TODO: tighten up the 'near' calculations and try and whittle down the stop lists- it's way inaccurate right now
+# TODO: integrate more sources than just yelp, it's a little scarce right now
 # TODO: get bus/travel times, etc.
-# TODO: perhaps transfer this in a web servie of some sort?
+# TODO: perhaps transfer this in a web service or map overlay of some sort?
 
 ## Keys, Constants
 # TransLoc Mashape API Key
@@ -71,8 +72,7 @@ def url_paramify(entities, key):
 	return entity_ids
 
 ## TransLoc
-def find_nearby_agencies(latitude, longitude):
-	radius = 800
+def find_nearby_agencies(latitude, longitude, radius=800):
         close = '%s,%s|%s'%(latitude, longitude, radius)
 	agencies = unirest.get("https://transloc-api-1-2.p.mashape.com/agencies.json?geo_area=%s"%close, 
 			   headers=mashape_header()).body['data']
@@ -108,7 +108,6 @@ def find_gluten_free(latitude, longitude):
 	return get_yelp_results(params)
 
 def find_gf_free_near_stops(stops):
-	#stop_coords = {stop['stop_id']:(stop['location']['lat'], stop['location']['lng']) for stop in stops}
 	stop_coords = {}
 	for stop in stops:
 		location = stop['location']['lat'], stop['location']['lng']
@@ -128,16 +127,21 @@ def find_route_to_restaurant(routes, nearby_stops, restaurants):
 
 		for route_id, stops in routes.iteritems():
 			route_stop_set = set(stops)
-			if not route_stop_set.isdisjoint(nearby_stop_set) and not route_stop_set.isdisjoint(stops_near_restaurant_set):
+			start = route_stop_set & nearby_stop_set
+			stop = route_stop_set & stops_near_restaurant_set
+			#if not route_stop_set.isdisjoint(nearby_stop_set) and not route_stop_set.isdisjoint(stops_near_restaurant_set):
+			if start and stop:
+				x = {'route':route_id, 'start_stop':start, 'end_stop':stop}
 				if restaurant in possible_routes_to_restaurants:
-					possible_routes_to_restaurants[restaurant].append(route_id)
+					#possible_routes_to_restaurants[restaurant].append(route_id)
+					possible_routes_to_restaurants[restaurant].append(x)
 				else:
-					possible_routes_to_restaurants[restaurant] = [route_id]
+					#possible_routes_to_restaurants[restaurant] = [route_id]
+					possible_routes_to_restaurants[restaurant] = [x]
 	return possible_routes_to_restaurants
 
-# TODO: actually put the stop that's near them on the darn return value... :/
 def find_guten_free_near_me(my_lat, my_long, search_radius=9000):
-	agencies = find_nearby_agencies(my_lat, my_long)
+	agencies = find_nearby_agencies(my_lat, my_long, radius=search_radius)
 	nearest_stops = find_nearest_stops(my_lat, my_long, agencies, radius=search_radius)
 	nearest_routes = find_nearest_routes(my_lat, my_long, agencies, radius=search_radius)
 
@@ -166,4 +170,5 @@ def find_guten_free_near_me(my_lat, my_long, search_radius=9000):
 	routes_to_restaraunt = find_route_to_restaurant(nearest_routes_by_stop, nearest_stops, gf_restaurants)
 	return routes_to_restaraunt
 
-#print(find_guten_free_near_me(*find_me()))
+#import pprint
+#pprint.pprint(find_guten_free_near_me(*find_me(), search_radius=8500))
